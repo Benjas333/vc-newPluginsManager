@@ -8,19 +8,23 @@ import "./NewPluginsModal.css";
 
 import { Settings, useSettings } from "@api/Settings";
 import { classNameFactory } from "@api/Styles";
+import { BaseText } from "@components/BaseText";
+import { Button } from "@components/Button";
+import ErrorBoundary from "@components/ErrorBoundary";
+import { Flex } from "@components/Flex";
+import { Paragraph } from "@components/Paragraph";
 import { PluginCard } from "@components/settings/tabs/plugins/PluginCard";
 import { ChangeList } from "@utils/ChangeList";
 import { classes, Margins } from "@utils/index";
 import { closeModal, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalProps, ModalRoot, ModalSize, openModal } from "@utils/modal";
 import { useForceUpdater } from "@utils/react";
-import { findByPropsLazy, findComponentByCodeLazy } from "@webpack";
-import { Button, Flex, Forms, React, Text, Tooltip, useMemo } from "@webpack/common";
+import { findComponentByCodeLazy } from "@webpack";
+import { React, Tooltip, useMemo } from "@webpack/common";
 import { JSX } from "react";
 
 import Plugins from "~plugins";
 
 import { getNewPlugins, getNewSettings, KnownPluginSettingsMap, writeKnownSettings } from "./knownSettings";
-import ErrorBoundary from "@components/ErrorBoundary";
 
 const cl = classNameFactory("vc-plugins-");
 
@@ -108,7 +112,7 @@ export function NewPluginsModal({ modalProps, newPlugins, newSettings }: { modal
 
     return <ModalRoot {...modalProps} size={ModalSize.MEDIUM} >
         <ModalHeader>
-            <Text variant="heading-lg/semibold" style={{ flexGrow: 1 }}>New Plugins and Settings ({[...plugins, ...requiredPlugins].length})</Text>
+            <BaseText size="lg" weight="semibold" style={{ flexGrow: 1 }}>New Plugins and Settings ({[...plugins, ...requiredPlugins].length})</BaseText>
             <Tooltip text="Dismiss for this session">
                 {tooltipProps =>
                     <div {...tooltipProps}>
@@ -126,14 +130,14 @@ export function NewPluginsModal({ modalProps, newPlugins, newSettings }: { modal
             </div>
         </ModalContent>
         <ModalFooter>
-            <Flex direction={Flex.Direction.HORIZONTAL_REVERSE}>
+            <Flex flexDirection="row-reverse">
                 <ContinueButton
                     close={modalProps.onClose}
                     changes={changes}
                     callback={(v: () => void) => updateContinueButton = v}
                 />
             </Flex>
-            <Flex direction={Flex.Direction.HORIZONTAL}>
+            <Flex flexDirection="row">
                 <div className="vc-newPluginsManager-disable-wrapper">
                     <Checkbox
                         type="inverted"
@@ -142,7 +146,7 @@ export function NewPluginsModal({ modalProps, newPlugins, newSettings }: { modal
                             Settings.plugins.NewPluginsManager.enabled = !settings?.plugins?.NewPluginsManager?.enabled;
                         }}
                     >
-                        <Text>Don't show this again</Text>
+                        <BaseText>Don't show this again</BaseText>
                     </Checkbox>
                 </div>
             </Flex>
@@ -167,7 +171,7 @@ function ContinueButton(props: { callback: (update: () => void) => void; changes
         {tooltipProps =>
             <Button
                 {...tooltipProps}
-                color={Button.Colors.GREEN}
+                variant="positive"
                 onClick={async () => {
                     await writeKnownSettings();
                     props.changes.hasChanges ? location.reload() : props.close();
@@ -183,8 +187,8 @@ function ContinueButton(props: { callback: (update: () => void) => void; changes
 function makeDependencyList(deps: string[]) {
     return (
         <React.Fragment>
-            <Forms.FormText>This plugin is required by:</Forms.FormText>
-            {deps.map((dep: string) => <Forms.FormText className={cl("dep-text")}>{dep}</Forms.FormText>)}
+            <Paragraph>This plugin is required by:</Paragraph>
+            {deps.map((dep: string) => <Paragraph className={cl("dep-text")}>{dep}</Paragraph>)}
         </React.Fragment>
     );
 }
