@@ -7,7 +7,6 @@
 import "./NewPluginsModal.css";
 
 import { Settings, useSettings } from "@api/Settings";
-import { classNameFactory } from "@api/Styles";
 import { BaseText } from "@components/BaseText";
 import { Button } from "@components/Button";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -15,11 +14,10 @@ import { Flex } from "@components/Flex";
 import { Paragraph } from "@components/Paragraph";
 import { PluginCard } from "@components/settings/tabs/plugins/PluginCard";
 import { ChangeList } from "@utils/ChangeList";
-import { classes, Margins } from "@utils/index";
+import { classes, classNameFactory, Margins } from "@utils/index";
 import { closeModal, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalProps, ModalRoot, ModalSize, openModal } from "@utils/modal";
 import { useForceUpdater } from "@utils/react";
-import { findComponentByCodeLazy } from "@webpack";
-import { React, Tooltip, useMemo } from "@webpack/common";
+import { Checkbox, React, Tooltip, useMemo } from "@webpack/common";
 import { JSX } from "react";
 
 import Plugins from "~plugins";
@@ -27,8 +25,6 @@ import Plugins from "~plugins";
 import { getNewPlugins, getNewSettings, KnownPluginSettingsMap, writeKnownSettings } from "./knownSettings";
 
 const cl = classNameFactory("vc-plugins-");
-
-const Checkbox = findComponentByCodeLazy(".checkboxWrapperDisabled:");
 
 let hasSeen = false;
 
@@ -163,7 +159,7 @@ function ContinueButton(props: { callback: (update: () => void) => void; changes
             The following plugins require a restart:
             <div className={Margins.bottom8} />
             <ul className="vc-newPluginsManager-restart-list">
-                {props.changes.map(p => <li>{p}</li>)}
+                {props.changes.map(p => <li key={p}>{p}</li>)}
             </ul>
         </>}
         shouldShow={props.changes.hasChanges}
@@ -188,7 +184,7 @@ function makeDependencyList(deps: string[]) {
     return (
         <React.Fragment>
             <Paragraph>This plugin is required by:</Paragraph>
-            {deps.map((dep: string) => <Paragraph className={cl("dep-text")}>{dep}</Paragraph>)}
+            {deps.map((dep: string) => <Paragraph key={dep} className={cl("dep-text")}>{dep}</Paragraph>)}
         </React.Fragment>
     );
 }
