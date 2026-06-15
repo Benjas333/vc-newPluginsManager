@@ -14,10 +14,10 @@ import { Flex } from "@components/Flex";
 import { Paragraph } from "@components/Paragraph";
 import { PluginCard } from "@components/settings/tabs/plugins/PluginCard";
 import { ChangeList } from "@utils/ChangeList";
-import { classes, classNameFactory, Margins } from "@utils/index";
-import { closeModal, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalProps, ModalRoot, ModalSize, openModal } from "@utils/modal";
+import { classNameFactory, Margins } from "@utils/index";
 import { useForceUpdater } from "@utils/react";
-import { Checkbox, React, Tooltip, useMemo } from "@webpack/common";
+import { RenderModalProps } from "@vencord/discord-types";
+import { Checkbox, closeModal, Modal, openModal, React, Tooltip, useMemo } from "@webpack/common";
 import { JSX } from "react";
 
 import Plugins from "~plugins";
@@ -30,7 +30,7 @@ let hasSeen = false;
 
 // Most of this was stolen from PluginSettings directly.
 
-export function NewPluginsModal({ modalProps, newPlugins, newSettings }: { modalProps: ModalProps; newPlugins: Set<string>; newSettings: KnownPluginSettingsMap; }) {
+export function NewPluginsModal({ modalProps, newPlugins, newSettings }: { modalProps: RenderModalProps; newPlugins: Set<string>; newSettings: KnownPluginSettingsMap; }) {
     const settings = useSettings();
     const changes = React.useMemo(() => new ChangeList<string>(), []);
     let updateContinueButton = () => { };
@@ -105,35 +105,12 @@ export function NewPluginsModal({ modalProps, newPlugins, newSettings }: { modal
         }
     }
 
-
-    return <ModalRoot {...modalProps} size={ModalSize.MEDIUM} >
-        <ModalHeader>
-            <BaseText size="lg" weight="semibold" style={{ flexGrow: 1 }}>New Plugins and Settings ({[...plugins, ...requiredPlugins].length})</BaseText>
-            <Tooltip text="Dismiss for this session">
-                {tooltipProps =>
-                    <div {...tooltipProps}>
-                        <ModalCloseButton
-                            onClick={modalProps.onClose}
-                            className={classes(cl("close"), "vc-newPluginsManager-close")}
-                        />
-                    </div>
-                }
-            </Tooltip>
-        </ModalHeader>
-        <ModalContent>
-            <div className={cl("grid")}>
-                {[...plugins, ...requiredPlugins]}
-            </div>
-        </ModalContent>
-        <ModalFooter>
-            <Flex flexDirection="row-reverse">
-                <ContinueButton
-                    close={modalProps.onClose}
-                    changes={changes}
-                    callback={(v: () => void) => updateContinueButton = v}
-                />
-            </Flex>
-            <Flex flexDirection="row">
+    return <Modal
+        {...modalProps}
+        size="lg"
+        title={`New Plugins and Settings (${[...plugins, ...requiredPlugins].length})`}
+        actionBarInput={
+            <Flex flexDirection="row" gap={10} alignItems="center" justifyContent="flex-end" >
                 <div className="vc-newPluginsManager-disable-wrapper">
                     <Checkbox
                         type="inverted"
@@ -145,9 +122,18 @@ export function NewPluginsModal({ modalProps, newPlugins, newSettings }: { modal
                         <BaseText>Don't show this again</BaseText>
                     </Checkbox>
                 </div>
+                <ContinueButton
+                    close={modalProps.onClose}
+                    changes={changes}
+                    callback={(v: () => void) => updateContinueButton = v}
+                />
             </Flex>
-        </ModalFooter>
-    </ModalRoot>;
+        }
+    >
+        <div className={cl("grid")}>
+            {[...plugins, ...requiredPlugins]}
+        </div>
+    </Modal>;
 }
 
 function ContinueButton(props: { callback: (update: () => void) => void; changes: ChangeList<string>; close: () => any; }) {
